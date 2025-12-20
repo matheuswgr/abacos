@@ -1,0 +1,26 @@
+FROM ubuntu:22.04
+
+WORKDIR app
+
+RUN apt-get update -y && \
+    apt-get upgrade -y && \
+     apt-get install -y git \
+    cmake \
+    build-essential \
+    g++ \
+    libboost-all-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir vsomeip && cd vsomeip && git clone https://github.com/COVESA/vsomeip.git . && mkdir build && cd build && cmake .. && make
+
+RUN cd /app && mkdir cyclonedds && cd cyclonedds && git clone https://github.com/eclipse-cyclonedds/cyclonedds.git . && mkdir build && cd build && cmake -DCMAKE_INSTALL=/usr/local/ .. && cmake --build . && cmake --build . --target install
+
+RUN cd /app && cd cyclonedds && mkdir cyclonedds-cxx && cd cyclonedds-cxx && git clone https://github.com/eclipse-cyclonedds/cyclonedds-cxx.git . && mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX=/usr/local/ -DCMAKE_PREFIX_PATH=/usr/local/ -DBUILD_EXAMPLES=ON .. && cmake --build . && cmake --build . --target install
+
+RUN cd /app/cyclonedds/build && make install && ldconfig
+
+RUN cd /app/cyclonedds/cyclonedds-cxx/build && make install && ldconfig
+
+RUN cd /app && mkdir abacos 
+
+COPY ./ ./abacos

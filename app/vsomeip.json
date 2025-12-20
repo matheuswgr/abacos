@@ -1,0 +1,17 @@
+{
+  "unicast": "127.0.0.1",
+  "applications": [
+    {
+      "name": "vsomeip_publisher",
+      "id": "0x1001"
+    }
+  ],
+  "services": [
+    {
+      "service": "0x1234",
+      "instance": "0x5678",
+      "reliable": false,
+      "unreliable": true
+    }
+  ]
+}
