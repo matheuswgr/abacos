@@ -1,0 +1,8 @@
+module Packet 
+{
+    struct PacketMessage
+    {
+        long id;
+        string payload;
+    };
+};
