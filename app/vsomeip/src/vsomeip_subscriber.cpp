@@ -52,7 +52,7 @@ int main()
                     INSTANCE_ID,
                     EVENT_ID,
                     groups,
-                    vsomeip::event_type_e::ET_FIELD
+                    vsomeip::event_type_e::ET_EVENT
                 );
 
                 // 3. Subscribe to event group

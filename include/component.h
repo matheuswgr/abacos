@@ -69,6 +69,7 @@ namespace abacos
             template<typename TPort>
             void register_output_port(TPort *port)
             {
+                (void)port;
                 return;
             }
 

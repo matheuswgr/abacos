@@ -49,8 +49,9 @@ namespace abacos
             using method_forward_type = void (*)(T *,Blocking_Queue<TIn>*);
 
             T *object_;
-            method_forward_type method_forward_;
             Blocking_Queue<TIn> input_queue_;
+            method_forward_type method_forward_;
+            
 
             Behavior(T *object, TInput_Port *input_port, method_forward_type method_forward, int queue_capacity = 10)
                     : object_(object), input_queue_(queue_capacity), method_forward_(method_forward)

@@ -49,7 +49,7 @@ int main()
                     INSTANCE_ID,
                     EVENT_ID,
                     groups,
-                    vsomeip::event_type_e::ET_FIELD
+                    vsomeip::event_type_e::ET_EVENT
                 );
 
                 std::cout << "Service and event offered\n";

@@ -58,7 +58,15 @@ RUN git clone https://github.com/COVESA/vsomeip.git && \
     make
 
 # ------------------------------------------------------------
-# 6. Application workspace
+# 6. Clean
+# ------------------------------------------------------------
+
+RUN rm -rf cyclonedds && \
+    rm -rf cyclonedds-cxx && \
+    rm -rf vsomeip
+
+# ------------------------------------------------------------
+# 7. Application workspace
 # ------------------------------------------------------------
 WORKDIR /app/abacos
 COPY . .
