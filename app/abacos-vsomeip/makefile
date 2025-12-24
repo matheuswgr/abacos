@@ -1,5 +1,5 @@
 CXX := g++
-CXX_FLAGS := -Wall -Wextra -std=c++23 -ggdb3 -O0
+CXX_FLAGS := -Wall -Wextra -std=c++23 -ggdb3 -O3
 
 DIRS = /app/abacos /app/abacos/app/abacos-vsomeip
 

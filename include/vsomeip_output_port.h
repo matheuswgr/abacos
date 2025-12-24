@@ -52,18 +52,18 @@ namespace abacos
 
         void write(T &data)
         {
-            serialized_buffer_ = data.serialize();
-
-            last_publish_time_ns_ =
+            data.vsomeip_publisher_time_stamp_ns =
                 std::chrono::duration_cast<std::chrono::nanoseconds>(
                     std::chrono::steady_clock::now().time_since_epoch())
                     .count();
 
+            serialized_buffer_ = data.serialize();
+
             auto payload = vsomeip::runtime::get()->create_payload();
 
             payload->set_data(
-                reinterpret_cast<const uint8_t *>(serialized_buffer_.data()),
-                static_cast<uint32_t>(serialized_buffer_.size()));
+                reinterpret_cast<const uint8_t *>(serialized_buffer_),
+                static_cast<uint32_t>(data.size_bytes()));
 
             application_->notify(
                 SERVICE_ID, INSTANCE_ID, EVENT_ID, payload);
@@ -73,7 +73,7 @@ namespace abacos
         int port_identifier_;
         std::string topic_;
 
-        std::string serialized_buffer_;
+        char* serialized_buffer_;
 
         uint64_t last_publish_time_ns_{0};
 

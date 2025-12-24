@@ -40,8 +40,6 @@ namespace abacos
     private:
         void publish()
         {
-            std::cout << "writing data" << std::endl;
-
             Message message;
 
             message.payload = "Hello from vSomeIP";
