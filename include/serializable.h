@@ -2,7 +2,7 @@ namespace abacos
 {
     template<typename T>
     concept Serializable =
-    requires(T data, char* serialized, int size_bytes)
+    requires(T& data, char* serialized, int size_bytes)
     {
         T{serialized, size_bytes};
         { data.serialize() } -> std::same_as<char*>;

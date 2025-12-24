@@ -1,7 +1,7 @@
 CXX := g++
 CXX_FLAGS := -Wall -Wextra -std=c++23 -ggdb3 -O0
 
-DIRS = /app/abacos
+DIRS = /app/abacos /app/abacos/app/abacos-vsomeip
 
 SOURCE = ./src
 BIN = ./bin

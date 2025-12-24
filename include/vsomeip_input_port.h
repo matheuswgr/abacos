@@ -9,6 +9,7 @@
 #include <serializable.h>
 #include <iostream>
 #include <chrono>
+#include <optional>
 
 namespace abacos
 {
@@ -18,9 +19,12 @@ namespace abacos
     {
     public:
         VSOMEIP_Input_Port(int port_identifier, std::string topic)
-            : port_identifier_(port_identifier), topic_(topic)
+            : port_identifier_(port_identifier),
+              topic_(std::move(topic)),
+              event_(port_identifier_)
         {
-            application_ = vsomeip::runtime::get()->create_application("vsomeip_subscriber");
+            application_ =
+                vsomeip::runtime::get()->create_application("vsomeip_subscriber");
 
             application_->init();
 
@@ -30,35 +34,25 @@ namespace abacos
                 EVENT_ID,
                 [this](const std::shared_ptr<vsomeip::message> &msg)
                 {
-                    long vsomeip_subscriber_time_stamp_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
-                        std::chrono::steady_clock::now().time_since_epoch()
-                    ).count();
+                    auto payload = msg->get_payload();
 
-                    std::shared_ptr<vsomeip::payload> payload = msg->get_payload();
+                    current_data_ = T(reinterpret_cast<char *>(payload->get_data()),
+                        payload->get_length());
 
-                    long pre_subscriber_deserialization_time_stamp_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
-                        std::chrono::steady_clock::now().time_since_epoch()
-                    ).count();
+                    current_data_.vsomeip_subscriber_time_stamp_ns =
+                        std::chrono::duration_cast<std::chrono::nanoseconds>(
+                            std::chrono::steady_clock::now().time_since_epoch())
+                            .count();
 
-                    T data(reinterpret_cast<char *>(payload->get_data()), payload->get_length());
+                    for (auto &consumer : consumers_)
+                        consumer(current_data_);
 
-                    data.vsomeip_subscriber_time_stamp_ns = vsomeip_subscriber_time_stamp_ns;
-                    data.pre_subscriber_deserialization_time_stamp_ns = pre_subscriber_deserialization_time_stamp_ns;
-                    data.post_subscriber_deserialization_time_stamp_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
-                        std::chrono::steady_clock::now().time_since_epoch()
-                    ).count();
-
-                    std::cout << "Received: " << data.serialize() << std::endl;
-
-                    for (Delegate<void(T)> consumer : consumers_)
-                        consumer(data);
-
-                    for (Delegate<void(Port_Event)> listener : listeners_)
-                        listener(Port_Event(port_identifier_));
+                    for (auto &listener : listeners_)
+                        listener(event_);
                 });
 
             application_->register_state_handler(
-                [&](vsomeip::state_type_e state)
+                [this](vsomeip::state_type_e state)
                 {
                     if (state == vsomeip::state_type_e::ST_REGISTERED)
                     {
@@ -83,12 +77,12 @@ namespace abacos
             runner_ = std::thread(&VSOMEIP_Input_Port::run, this);
         }
 
-        void listen(Delegate<void(Port_Event)> listener)
+        void listen(Delegate<void(const Port_Event &)> listener)
         {
             listeners_.push_back(listener);
         }
 
-        void bind(Delegate<void(T)> consumer)
+        void bind(Delegate<void(const T &)> consumer)
         {
             consumers_.push_back(consumer);
         }
@@ -101,8 +95,13 @@ namespace abacos
     private:
         int port_identifier_;
         std::string topic_;
-        std::vector<Delegate<void(Port_Event)>> listeners_;
-        std::vector<Delegate<void(T)>> consumers_;
+
+        Port_Event event_;
+
+        T current_data_;
+
+        std::vector<Delegate<void(const Port_Event &)>> listeners_;
+        std::vector<Delegate<void(const T &)>> consumers_;
 
         constexpr static vsomeip::service_t SERVICE_ID = 0x1234;
         constexpr static vsomeip::instance_t INSTANCE_ID = 0x5678;
@@ -115,9 +114,9 @@ namespace abacos
         void run()
         {
             application_->start();
-            std::cout << "quitting" << std::endl;
         }
     };
+
 }
 
 #endif

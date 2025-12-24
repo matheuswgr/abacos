@@ -8,58 +8,45 @@
 namespace abacos
 {
 
-    template<typename T>
+    template <typename T>
     class Blocking_Queue
     {
-        private:
-            std::mutex _sync;
+    public:
+        explicit Blocking_Queue(size_t capacity)
+            : capacity_(capacity) {}
 
-            std::queue<T> _queue;
+        void push(T item)
+        {
+            std::unique_lock<std::mutex> lock(mtx_);
+            not_full_.wait(lock, [&]
+                           { return queue_.size() < capacity_; });
 
-            std::condition_variable _queue_not_empty;
-            std::condition_variable _queue_not_full;
+            queue_.push(std::move(item));
+            lock.unlock();
+            not_empty_.notify_one();
+        }
 
-            unsigned int _queue_length;
-            const unsigned int _queue_capacity;
+        T pop()
+        {
+            std::unique_lock<std::mutex> lock(mtx_);
+            not_empty_.wait(lock, [&]
+                            { return !queue_.empty(); });
 
-        public:
-            explicit Blocking_Queue(int capacity) : _queue_capacity(capacity)
-            {
-                _queue_length = 0;
-            }
+            T item = std::move(queue_.front());
+            queue_.pop();
+            lock.unlock();
+            not_full_.notify_one();
+            return item;
+        }
 
-            void push(T item)
-            {
-                std::unique_lock<std::mutex> lock(_sync);
-
-                _queue_not_full.wait(lock, [this]
-                { return _queue_length < _queue_capacity; });
-
-                _queue.push(item);
-
-                _queue_length++;
-
-                _queue_not_empty.notify_one();
-            }
-
-            T pop()
-            {
-                std::unique_lock<std::mutex> lock(_sync);
-
-                _queue_not_empty.wait(lock, [this]
-                { return !_queue.empty(); });
-
-                T item = _queue.front();
-
-                _queue.pop();
-
-                _queue_length--;
-
-                _queue_not_full.notify_one();
-
-                return item;
-            }
+    private:
+        std::mutex mtx_;
+        std::condition_variable not_empty_;
+        std::condition_variable not_full_;
+        std::queue<T> queue_;
+        size_t capacity_;
     };
+
 }
 
 #endif

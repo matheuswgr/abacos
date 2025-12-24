@@ -3,100 +3,101 @@
 
 namespace abacos
 {
-
-    template<typename TSignature>
+    template <typename TSignature>
     class Delegate;
 
-    template<typename R, typename ...Args>
+    template <typename R, typename... Args>
     class Delegate<R(Args...)>
     {
-        public:
-            R operator()(Args... args) const
-            {
-                return (*stub_)(object_, args...);
-            }
+    public:
+        R operator()(Args &&...args) const noexcept
+        {
+            return (*stub_)(object_, std::forward<Args>(args)...);
+        }
 
-            template<typename T>
-            static Delegate create_delegate(T *object)
-            {
-                return Delegate(object, &create_functor_stub < T > );
-            }
+        template <typename T>
+        static Delegate create_delegate(T *object)
+        {
+            return Delegate(object, &create_functor_stub<T>);
+        }
 
-            template<typename T, R(T::*Method)(Args...)>
-            static Delegate create_delegate(T *object)
-            {
-                return Delegate(object, &create_method_stub < T, Method > );
-            }
+        template <typename T, R (T::*Method)(Args...)>
+        static Delegate create_delegate(T *object)
+        {
+            return Delegate(object, &create_method_stub<T, Method>);
+        }
 
-        private:
-            using stub_type = R(*)(void *, Args...);
+    private:
+        using stub_type = R (*)(void *, Args &&...);
 
-            void *object_;
-            stub_type stub_;
+        void *object_;
+        stub_type stub_;
 
-            Delegate(void *object, stub_type stub)
-                    : object_(object), stub_(stub)
-            {}
+        Delegate(void *object, stub_type stub) noexcept
+            : object_(object), stub_(stub)
+        {
+        }
 
-            template<typename T, R(T::*Method)(Args...)>
-            static R create_method_stub(void *object, Args... args)
-            {
-                T *typed_object = static_cast<T *>(object);
-                return (typed_object->*Method)(args...);
-            }
+        template <typename T, R (T::*Method)(Args...)>
+        static R create_method_stub(void *object, Args &&...args) noexcept
+        {
+            T *typed_object = static_cast<T *>(object);
+            return (typed_object->*Method)(std::forward<Args>(args)...);
+        }
 
-            template<typename T>
-            static R create_functor_stub(void *object, Args... args)
-            {
-                T *typed_object = static_cast<T *>(object);
-                return (*typed_object)(args...);
-            }
+        template <typename T>
+        static R create_functor_stub(void *object, Args &&...args) noexcept
+        {
+            T *typed_object = static_cast<T *>(object);
+            return (*typed_object)(std::forward<Args>(args)...);
+        }
     };
 
-    template<>
+    template <>
     class Delegate<void()>
     {
-        public:
-            void operator()() const
-            {
-                return (*stub_)(object_);
-            }
+    public:
+        void operator()() const
+        {
+            return (*stub_)(object_);
+        }
 
-            template<typename T>
-            static Delegate create_delegate(T *object)
-            {
-                return Delegate(object, &create_functor_stub<T>);
-            }
+        template <typename T>
+        static Delegate create_delegate(T *object)
+        {
+            return Delegate(object, &create_functor_stub<T>);
+        }
 
-            template<typename T, void(T::*Method)()>
-            static Delegate create_delegate(T *object)
-            {
-                return Delegate(object, &create_method_stub<T, Method>);
-            }
+        template <typename T, void (T::*Method)()>
+        static Delegate create_delegate(T *object)
+        {
+            return Delegate(object, &create_method_stub<T, Method>);
+        }
 
-        private:
-            using stub_type = void (*)(void *);
+    private:
+        using stub_type = void (*)(void *);
 
-            void *object_;
-            stub_type stub_;
+        void *object_;
+        stub_type stub_;
 
-            Delegate(void *object, stub_type stub)
-                    : object_(object), stub_(stub)
-            {}
+        Delegate(void *object, stub_type stub)
+            : object_(object), stub_(stub)
+        {
+        }
 
-            template<typename T, void(T::*Method)()>
-            static void create_method_stub(void *object)
-            {
-                T *typed_object = static_cast<T *>(object);
-                return (typed_object->*Method)();
-            }
+        template <typename T, void (T::*Method)()>
+        static void create_method_stub(void *object)
+        {
+            T *typed_object = static_cast<T *>(object);
+            return (typed_object->*Method)();
+        }
 
-            template<typename T>
-            static void create_functor_stub(void *object)
-            {
-                T *typed_object = static_cast<T *>(object);
-                return (*typed_object)();
-            }
+        template <typename T>
+        static void create_functor_stub(void *object)
+        {
+            T *typed_object = static_cast<T *>(object);
+            return (*typed_object)();
+        }
     };
 }
 #endif

@@ -8,15 +8,21 @@
 
 namespace abacos
 {
-    template<typename TComponent_Input_Port, typename T>
+    template <typename TComponent_Input_Port, typename T>
     concept Input_Port_Concept =
-    requires(TComponent_Input_Port component_input_port,          int id,
-         std::string topic, Delegate<void(Port_Event)> listener, Delegate<void(T)> consumer)
-    {
-        TComponent_Input_Port{id, topic};
-        { component_input_port.listen(listener) } -> std::same_as<void>;
-        { component_input_port.bind(consumer) } -> std::same_as<void>;
-    };
+        requires(
+            TComponent_Input_Port port,
+            int id,
+            std::string topic,
+            Delegate<void(const Port_Event &)> listener,
+            Delegate<void(const T &)> consumer) {
+            TComponent_Input_Port{id, topic};
+
+            { port.listen(listener) } -> std::same_as<void>;
+
+            { port.bind(consumer) } -> std::same_as<void>;
+        };
+
 }
 
 #endif

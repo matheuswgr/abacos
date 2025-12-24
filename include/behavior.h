@@ -9,108 +9,104 @@ namespace abacos
 {
     using Behavior_Delegate = Delegate<void()>;
 
-    template<typename ...TSignature>
+    template <typename... TSignature>
     class Behavior;
 
-    template<typename T, typename TIn, Input_Port_Concept <TIn> TInput_Port>
+    template <typename T, typename TIn, Input_Port_Concept<TIn> TInput_Port>
     class Behavior<T, TIn, TInput_Port>
     {
-        public:
-            template<void(T::*TMethod)(TIn)>
-            static Behavior create_behavior(T *object, TInput_Port *input_port)
-            {
-                return Behavior(object, input_port, &create_method_forward < TMethod > );
-            }
+    public:
+        template <void (T::*TMethod)(const TIn &)>
+        static Behavior create_behavior(T *object, TInput_Port *input_port)
+        {
+            return Behavior(object, input_port,
+                            &create_method_forward<TMethod>);
+        }
 
-            template<void(T::*TMethod)(TIn)>
-            static Behavior_Delegate create_behavior_delegate(T *object, TInput_Port *input_port)
-            {
-                Behavior *behavior = new Behavior(object, input_port, &create_method_forward < TMethod > );
+        Behavior_Delegate create_behavior_delegate()
+        {
+            return Behavior_Delegate::create_delegate<Behavior<T, TIn, TInput_Port>>(this);
+        }
 
-                return Behavior_Delegate::create_delegate<Behavior<T, TIn, TInput_Port>>(behavior);
-            }
+        void ingest(const TIn &input)
+        {
+            input_queue_.push(&input);
+        }
 
-            Behavior_Delegate create_behavior_delegate()
-            {
-                return Behavior_Delegate::create_delegate<Behavior<T, TIn>>(this);
-            }
+        void operator()()
+        {
+            (*method_forward_)(object_, &input_queue_);
+        }
 
-            void ingest(TIn input)
-            {
-                input_queue_.push(input);
-            }
+    private:
+        using method_forward_type =
+            void (*)(T *, Blocking_Queue<const TIn *> *);
 
-            void operator()()
-            {
-                return (*method_forward_)(object_, &input_queue_);
-            }
+        T *object_;
+        Blocking_Queue<const TIn *> input_queue_;
+        method_forward_type method_forward_;
 
-        private:
-            using method_forward_type = void (*)(T *,Blocking_Queue<TIn>*);
+        Behavior(T *object,
+                 TInput_Port *input_port,
+                 method_forward_type method_forward,
+                 int queue_capacity = 10)
+            : object_(object),
+              input_queue_(queue_capacity),
+              method_forward_(method_forward)
+        {
+            input_port->bind(
+                Delegate<void(const TIn &)>::template create_delegate<Behavior,
+                                                                      &Behavior::ingest>(this));
+        }
 
-            T *object_;
-            Blocking_Queue<TIn> input_queue_;
-            method_forward_type method_forward_;
-            
-
-            Behavior(T *object, TInput_Port *input_port, method_forward_type method_forward, int queue_capacity = 10)
-                    : object_(object), input_queue_(queue_capacity), method_forward_(method_forward)
-            {
-                input_port->bind(Delegate<void(TIn)>::template create_delegate<Behavior<T, TIn, TInput_Port>, &Behavior<T, TIn, TInput_Port>::ingest>(this));
-            }
-
-            template<void(T::*TMethod)(TIn)>
-            static void create_method_forward(T *object, Blocking_Queue<TIn> *input_queue_)
-            {
-                TIn input = input_queue_->pop();
-                return (object->*TMethod)(input);
-            };
+        template <void (T::*TMethod)(const TIn &)>
+        static void create_method_forward(
+            T *object,
+            Blocking_Queue<const TIn *> *queue)
+        {
+            const TIn *input = queue->pop();
+            (object->*TMethod)(*input);
+        }
     };
 
-    template<typename T>
+    template <typename T>
     class Behavior<T>
     {
-        public:
-            template<void(T::*TMethod)()>
-            static Behavior create_behavior(T *object)
-            {
-                return Behavior(object, &create_method_forward<TMethod>);
-            }
+    public:
+        template <void (T::*TMethod)()>
+        static Behavior create_behavior(T *object)
+        {
+            return Behavior(object, &create_method_forward<TMethod>);
+        }
 
-            template<void(T::*TMethod)()>
-            static Behavior_Delegate create_behavior_delegate(T *object)
-            {
-                Behavior *behavior = new Behavior(object, &create_method_forward<TMethod>);
+        Behavior_Delegate create_behavior_delegate()
+        {
+            return Behavior_Delegate::create_delegate<Behavior<T>>(this);
+        }
 
-                return Behavior_Delegate::create_delegate<Behavior<T>>(behavior);
-            }
+        void operator()()
+        {
+            (*method_forward_)(object_);
+        }
 
-            Behavior_Delegate create_behavior_delegate()
-            {
-                return Behavior_Delegate::create_delegate<Behavior<T>>(this);
-            }
+    private:
+        using method_forward_type = void (*)(T *);
 
-            void operator()()
-            {
-                return (*method_forward_)(object_);
-            }
+        T *object_;
+        method_forward_type method_forward_;
 
-        private:
-            using method_forward_type = void (*)(T *);
+        explicit Behavior(T *object, method_forward_type method_forward)
+            : object_(object), method_forward_(method_forward)
+        {
+        }
 
-            T *object_;
-            method_forward_type method_forward_;
-
-            Behavior(T *object, method_forward_type method_forward)
-                    : object_(object), method_forward_(method_forward)
-            {}
-
-            template<void(T::*TMethod)()>
-            static void create_method_forward(T *object)
-            {
-                return (object->*TMethod)();
-            };
+        template <void (T::*TMethod)()>
+        static void create_method_forward(T *object)
+        {
+            (object->*TMethod)();
+        }
     };
+
 }
 
 #endif

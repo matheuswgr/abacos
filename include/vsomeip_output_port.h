@@ -14,19 +14,21 @@
 namespace abacos
 {
     template <typename T>
-    requires Serializable<T>
+        requires Serializable<T>
     class VSOMEIP_Output_Port
     {
     public:
         VSOMEIP_Output_Port(int port_identifier, std::string topic)
-            : port_identifier_(port_identifier), topic_(topic)
+            : port_identifier_(port_identifier),
+              topic_(std::move(topic))
         {
-            application_ = vsomeip::runtime::get()->create_application("vsomeip_publisher");
+            application_ =
+                vsomeip::runtime::get()->create_application("vsomeip_publisher");
 
             application_->init();
 
             application_->register_state_handler(
-                [&](vsomeip::state_type_e state)
+                [this](vsomeip::state_type_e state)
                 {
                     if (state == vsomeip::state_type_e::ST_REGISTERED)
                     {
@@ -43,39 +45,37 @@ namespace abacos
                     }
                 });
 
-                application_thread_ = std::thread([this]()
-                                                  { application_->start(); });
+            application_thread_ =
+                std::thread([this]()
+                            { application_->start(); });
         }
 
-        void write(T data)
+        void write(T &data)
         {
-            std::cout << "SEND " << data.serialize() << std::endl;
-            
-            std::shared_ptr<vsomeip::payload> payload = vsomeip::runtime::get()->create_payload();
+            serialized_buffer_ = data.serialize();
 
-            data.pre_publisher_serialization_time_stamp_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
-                    std::chrono::steady_clock::now().time_since_epoch()
-                ).count();
+            last_publish_time_ns_ =
+                std::chrono::duration_cast<std::chrono::nanoseconds>(
+                    std::chrono::steady_clock::now().time_since_epoch())
+                    .count();
 
-            payload->set_data(reinterpret_cast<const uint8_t*>(data.serialize()),
-            static_cast<uint32_t>(data.size_bytes()));
+            auto payload = vsomeip::runtime::get()->create_payload();
 
-            data.post_publisher_serialization_time_stamp_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
-                    std::chrono::steady_clock::now().time_since_epoch()
-                ).count();
+            payload->set_data(
+                reinterpret_cast<const uint8_t *>(serialized_buffer_.data()),
+                static_cast<uint32_t>(serialized_buffer_.size()));
 
-            data.vsomeip_publisher_time_stamp_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
-                    std::chrono::steady_clock::now().time_since_epoch()
-                ).count();
-
-            application_->notify(SERVICE_ID, INSTANCE_ID, EVENT_ID, payload);
+            application_->notify(
+                SERVICE_ID, INSTANCE_ID, EVENT_ID, payload);
         }
 
     private:
         int port_identifier_;
         std::string topic_;
-        std::vector<Delegate<void(Port_Event)>> listeners_;
-        std::vector<Delegate<void(T)>> consumers_;
+
+        std::string serialized_buffer_;
+
+        uint64_t last_publish_time_ns_{0};
 
         constexpr static vsomeip::service_t SERVICE_ID = 0x1234;
         constexpr static vsomeip::instance_t INSTANCE_ID = 0x5678;
@@ -85,6 +85,7 @@ namespace abacos
         std::shared_ptr<vsomeip::application> application_;
         std::thread application_thread_;
     };
+
 }
 
 #endif

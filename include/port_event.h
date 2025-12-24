@@ -9,6 +9,8 @@ namespace abacos
             int port_identifier_;
 
         public:
+            Port_Event() = default;
+
             explicit Port_Event(int port_identifier)
                     : port_identifier_(port_identifier)
             {}
