@@ -44,20 +44,8 @@ namespace abacos
                             std::chrono::steady_clock::now().time_since_epoch())
                             .count();
 
-                    /*auto begin =
-                        std::chrono::duration_cast<std::chrono::nanoseconds>(
-                            std::chrono::steady_clock::now().time_since_epoch())
-                            .count();*/
-
                     for (auto &consumer : consumers_)
                         consumer(current_data_);
-
-                    /*auto end =
-                        std::chrono::duration_cast<std::chrono::nanoseconds>(
-                            std::chrono::steady_clock::now().time_since_epoch())
-                            .count();
-
-                    std::cout << "Time to consume: " << end-begin << std::endl;*/
 
 
                     for (auto &listener : listeners_)

@@ -1,0 +1,29 @@
+2025-12-26 15:43:09.715542 [warning] Reading of configuration file "./vsomeip/makefile" failed. Configuration may be incomplete.
+2025-12-26 15:43:09.715605 [info] Using configuration folder: "./vsomeip".
+2025-12-26 15:43:09.715610 [info] Parsed vsomeip configuration in 0ms
+2025-12-26 15:43:09.715613 [info] Configuration module loaded.
+2025-12-26 15:43:09.715616 [info] Security disabled!
+2025-12-26 15:43:09.715618 [info] Initializing vsomeip (3.5.11) application "vsomeip_publisher".
+2025-12-26 15:43:09.715628 [info] Instantiating routing manager [Proxy].
+2025-12-26 15:43:09.715667 [info] Application(vsomeip_publisher, 1001) is initialized (11, 100).
+2025-12-26 15:43:09.730800 [info] Starting vsomeip application "vsomeip_publisher" (1001) using 2 threads I/O nice 0 boost event loop period 0
+2025-12-26 15:43:09.730912 [info] Client [1001] is connecting to [0] at /tmp/vsomeip-0 endpoint > 0xffff84001290
+2025-12-26 15:43:09.731034 [info] Started thread 1001_io00, application 'vsomeip_publisher', id ffff8a24f100, tid 31410
+2025-12-26 15:43:09.731041 [info] cei::wait_connecting_cbk: remote > /tmp/vsomeip-0, endpoint > 0xffff84001290 socket state > CONNECTING
+2025-12-26 15:43:09.731045 [info] assign_client: (1001:vsomeip_publisher)
+2025-12-26 15:43:09.731187 [info] create_local_server: Listening @ /tmp/vsomeip-1001
+2025-12-26 15:43:09.731194 [info] Client 1001 (vsomeip_publisher) successfully connected to routing  ~> registering..
+2025-12-26 15:43:09.731197 [info] Client 1001 Registering to routing manager @ vsomeip-0
+2025-12-26 15:43:09.731330 [info] lusei::accept_cbk: server @ /tmp/vsomeip-1001 accepted connection 0xffff84003350 from client [0100], endpoint > 0xffff84002cd0
+2025-12-26 15:43:09.731376 [info] Application/Client 1001 (vsomeip_publisher) is registered.
+2025-12-26 15:43:09.742132 [warning] Attempt to update the undefined event/field [1234.5678.421]
+2025-12-26 15:43:09.742503 [info] Started thread 1001_shutdown, application 'vsomeip_publisher', id ffff83fff100, tid 31414
+2025-12-26 15:43:09.745725 [info] Started thread 1001_m_dispatch, application 'vsomeip_publisher', id ffff88a1f100, tid 31413
+2025-12-26 15:43:09.752019 [info] offer_event: Event [1234.5678.0421] uses configured cycle time 0ms
+2025-12-26 15:43:09.752036 [info] REGISTER EVENT(1001): [1234.5678.0421:is_provider=true]
+2025-12-26 15:43:09.752081 [info] emb::find_or_create_local: self 1001, client 100
+2025-12-26 15:43:09.752089 [info] Client [1001] is connecting to [100] at /tmp/vsomeip-100 endpoint > 0xffff84003be0
+2025-12-26 15:43:09.752108 [info] SUBSCRIBE(0100): [1234.5678.0001:ffff:0] false accepted
+2025-12-26 15:43:09.752112 [info] SUBSCRIBE(0100): [1234.5678.0001:ffff:0] false
+2025-12-26 15:43:09.752116 [info] cei::wait_connecting_cbk: remote > /tmp/vsomeip-100, endpoint > 0xffff84003be0 socket state > CONNECTING
+2025-12-26 15:43:09.765777 [info] Started thread 1001_io01, application 'vsomeip_publisher', id ffff837ef100, tid 31415

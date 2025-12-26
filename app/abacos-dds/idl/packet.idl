@@ -4,5 +4,9 @@ module Packet
     {
         long id;
         string payload;
+        unsigned long long abacos_publisher_time_stamp_ns;
+        unsigned long long dds_publisher_time_stamp_ns;
+        unsigned long long dds_subscriber_time_stamp_ns;
+        unsigned long long abacos_subscriber_time_stamp_ns;
     };
 };

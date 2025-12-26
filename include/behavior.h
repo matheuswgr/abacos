@@ -30,19 +30,7 @@ namespace abacos
 
         void ingest(const TIn &input)
         {
-            auto begin =
-                std::chrono::duration_cast<std::chrono::nanoseconds>(
-                    std::chrono::steady_clock::now().time_since_epoch())
-                    .count();
-
             input_queue_.push(&input);
-
-            auto end =
-                std::chrono::duration_cast<std::chrono::nanoseconds>(
-                    std::chrono::steady_clock::now().time_since_epoch())
-                    .count();
-
-            std::cout << "Time to push: " << end - begin << std::endl;
         }
 
         void operator()()
@@ -76,19 +64,7 @@ namespace abacos
             T *object,
             Blocking_Queue<const TIn *> *queue)
         {
-            auto begin =
-                std::chrono::duration_cast<std::chrono::nanoseconds>(
-                    std::chrono::steady_clock::now().time_since_epoch())
-                    .count();
-
             const TIn *input = queue->pop();
-
-            auto end =
-                std::chrono::duration_cast<std::chrono::nanoseconds>(
-                    std::chrono::steady_clock::now().time_since_epoch())
-                    .count();
-
-            std::cout << "Time to pop: " << end - begin << std::endl;
 
             (object->*TMethod)(*input);
         }

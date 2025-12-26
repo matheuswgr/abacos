@@ -15,16 +15,16 @@
 namespace abacos
 {
     template <typename TOutput_Port>
-        requires Output_Port_Concept<TOutput_Port, Message>
+    requires Output_Port_Concept<TOutput_Port, Message>
     class Simple_Publisher : public Component
     {
     public:
-        explicit Simple_Publisher(long period_ms)
-            : periodic_timer_port_(
-                  0,
-                  std::chrono::duration_cast<std::chrono::nanoseconds>(
-                      std::chrono::milliseconds(period_ms))
-                      .count()),
+        Simple_Publisher(std::size_t payload_size_bytes,
+                         long period_ms)
+            : payload_size_bytes_(payload_size_bytes),
+              period_ns_(static_cast<long>(
+                  period_ms*1000000)),
+              periodic_timer_port_(0, period_ns_),
               output_port_(1, "vsomeip_topic"),
               behavior_(Behavior<Simple_Publisher>
                     ::template create_behavior<&Simple_Publisher::publish>(
@@ -35,6 +35,8 @@ namespace abacos
             bind_behavior_to_input_port(
                 &periodic_timer_port_,
                 behavior_.create_behavior_delegate());
+
+            payload_.resize(payload_size_bytes_, 'A');
         }
 
     private:
@@ -42,8 +44,8 @@ namespace abacos
         {
             Message message;
 
-            message.payload = "Hello from vSomeIP";
-            message.payload_size_bytes = message.payload.size();
+            message.payload = payload_;
+            message.payload_size_bytes = payload_.size();
 
             message.abacos_publisher_time_stamp_ns =
                 std::chrono::duration_cast<std::chrono::nanoseconds>(
@@ -53,23 +55,39 @@ namespace abacos
             output_port_.write(message);
         }
 
+        std::size_t payload_size_bytes_;
+        long period_ns_;
+
+        std::string payload_;
+
         Behavior<Simple_Publisher> behavior_;
         Periodic_Timer_Port periodic_timer_port_;
         TOutput_Port output_port_;
     };
 }
 
-int main()
+int main(int argc, char** argv)
 {
+    if (argc != 3)
+    {
+        std::cerr << "Usage: " << argv[0]
+                  << " <period_ms> <payload_size_bytes>\n";
+        return 1;
+    }
+
+    long period_ms =
+        std::stol(argv[1]);
+
+    std::size_t payload_size_bytes =
+        static_cast<std::size_t>(std::stoul(argv[2]));
+
     abacos::Simple_Publisher<
         abacos::VSOMEIP_Output_Port<Message>>
-        publisher(500);
+        publisher(payload_size_bytes, period_ms);
 
     publisher.start();
 
-    while (true)
-    {
-    }
+    while (true) {}
 
     return 0;
 }

@@ -1,0 +1,60 @@
+2025-12-26 15:43:10.738400 [warning] Reading of configuration file "./vsomeip/makefile" failed. Configuration may be incomplete.
+2025-12-26 15:43:10.738458 [info] Using configuration folder: "./vsomeip".
+2025-12-26 15:43:10.738462 [info] Parsed vsomeip configuration in 0ms
+2025-12-26 15:43:10.738465 [info] Configuration module loaded.
+2025-12-26 15:43:10.738467 [info] Security disabled!
+2025-12-26 15:43:10.738469 [info] Initializing vsomeip (3.5.11) application "vsomeip_subscriber".
+2025-12-26 15:43:10.738479 [info] Instantiating routing manager [Host].
+2025-12-26 15:43:10.738585 [info] create_routing_root: Routing root @ /tmp/vsomeip-0
+2025-12-26 15:43:10.738682 [info] Service Discovery enabled. Trying to load module.
+2025-12-26 15:43:10.738854 [info] Service Discovery module loaded.
+2025-12-26 15:43:10.738898 [info] sdi::init stop offer watchdog enabled.
+2025-12-26 15:43:10.738901 [info] Application(vsomeip_subscriber, 0100) is initialized (11, 100).
+2025-12-26 15:43:10.755810 [info] Starting vsomeip application "vsomeip_subscriber" (0100) using 2 threads I/O nice 0 boost event loop period 0
+2025-12-26 15:43:10.755908 [info] Client [0100] routes unicast:127.0.0.1, netmask:255.255.255.0
+2025-12-26 15:43:10.755970 [info] netlink: from 0 to 1, if=0, mc=0, count=0
+2025-12-26 15:43:10.756033 [info] Watchdog is disabled!
+2025-12-26 15:43:10.756067 [info] Started thread 0100_io00, application 'vsomeip_subscriber', id ffffb92bf100, tid 31426
+2025-12-26 15:43:10.756077 [info] netlink: from 1 to 2, if=1, mc=0, count=0
+2025-12-26 15:43:10.756106 [info] vSomeIP 3.5.11 | (default)
+2025-12-26 15:43:10.756144 [info] rmi::log_network_state: UDP connections
+2025-12-26 15:43:10.756147 [info] idx, local_addr, remote_addr, state, tx_queue, rx_queue, timer_active, tm_when, retrnsmt, uid, unanswered
+2025-12-26 15:43:10.756217 [info] rmi::log_network_state: TCP connections
+2025-12-26 15:43:10.756220 [info] idx, local_addr, remote_addr, state, tx_queue, rx_queue, timer_active, tm_when, retrnsmt, uid, unanswered
+2025-12-26 15:43:10.756225 [info] 0: 127.0.0.1:46101 0.0.0.0:0 0A 00000000:00000000 00:00000000 00000000 0 0 25731 1
+2025-12-26 15:43:10.756229 [info] 1: 172.17.0.2:39968 20.42.72.131:443 01 00000000:00000000 02:00000C89 00000000 0 0 7131900 2
+2025-12-26 15:43:10.756232 [info] 2: 127.0.0.1:37360 127.0.0.1:46101 01 00000000:00000000 00:00000000 00000000 0 0 6502678 1
+2025-12-26 15:43:10.756235 [info] 3: 127.0.0.1:41442 127.0.0.1:46101 01 00000000:00000000 00:00000000 00000000 0 0 6987349 2
+2025-12-26 15:43:10.756237 [info] 4: 127.0.0.1:46101 127.0.0.1:41442 01 00000000:00000000 00:00000000 00000000 0 0 6987858 3
+2025-12-26 15:43:10.756240 [info] 5: 127.0.0.1:46101 127.0.0.1:37360 01 00000000:00000000 00:00000000 00000000 0 0 6499323 2
+2025-12-26 15:43:10.756288 [info] netlink: from 2 to 3, if=1, mc=0, count=1
+2025-12-26 15:43:10.756303 [warning] Network interface "lo" state changed: up
+2025-12-26 15:43:10.756351 [info] Started thread 0100_io01, application 'vsomeip_subscriber', id ffffb27cf100, tid 31431
+2025-12-26 15:43:10.772913 [info] Started thread 0100_m_dispatch, application 'vsomeip_subscriber', id ffffb3fff100, tid 31428
+2025-12-26 15:43:10.772924 [info] REQUEST(0100): [1234.5678:255.4294967295]
+2025-12-26 15:43:10.772948 [info] Avoid trigger SD find-service message for local service/instance/major/minor: 1234/5678/255/4294967295
+2025-12-26 15:43:10.772993 [info] create_local_server: Listening @ /tmp/vsomeip-100
+2025-12-26 15:43:10.773014 [info] REGISTER EVENT(0100): [1234.5678.0421:is_provider=false]
+2025-12-26 15:43:10.773018 [info] SUBSCRIBE(0100): [1234.5678.0001:ffff:0]
+2025-12-26 15:43:10.774254 [info] Started thread 0100_shutdown, application 'vsomeip_subscriber', id ffffb37ef100, tid 31429
+2025-12-26 15:43:11.767980 [info] lusei::accept_cbk: server @ /tmp/vsomeip-0 accepted connection 0xffffb4005a30 from client [1001], endpoint > 0xaaaad6934e10
+2025-12-26 15:43:11.768184 [info] Application/Client 1001 is registering.
+2025-12-26 15:43:11.768216 [info] emb::find_or_create_local: self 0100, client 1001
+2025-12-26 15:43:11.768230 [info] Client [100] is connecting to [1001] at /tmp/vsomeip-1001 endpoint > 0xffff9c000ed0
+2025-12-26 15:43:11.768268 [info] cei::wait_connecting_cbk: remote > /tmp/vsomeip-1001, endpoint > 0xffff9c000ed0 socket state > CONNECTING
+2025-12-26 15:43:11.768307 [info] REGISTERED_ACK(1001)
+2025-12-26 15:43:11.769492 [info] rmi::offer_service added service: 1234 to pending_sd_offers_.size = 1
+2025-12-26 15:43:11.769510 [info] OFFER(1001): [1234.5678:0.0] (true)
+2025-12-26 15:43:11.769575 [info] lusei::accept_cbk: server @ /tmp/vsomeip-100 accepted connection 0xffffa4001910 from client [1001], endpoint > 0xffffa4001230
+2025-12-26 15:43:11.769622 [info] SUBSCRIBE ACK(1001): [1234.5678.0001.ffff]
+2025-12-26 15:43:12.743376 [info] lusei::receive_cbk closing connection due to is_stopped 0, error 'End of file', is_error 0, endpoint > 0xffffa4001910
+2025-12-26 15:43:12.743406 [info] lucei::receive_cbk: Error: End of file | endpoint > 0xffff9c000ed0
+2025-12-26 15:43:12.743417 [info] cei::shutdown_and_close_socket_unlocked: not recreating socket, remote: /tmp/vsomeip-1001, endpoint > 0xffff9c000ed0 socket state > CLOSED
+2025-12-26 15:43:12.743421 [info] rmi::handle_client_error Client 0x0100 handles a client error 0x1001
+2025-12-26 15:43:12.743425 [info] Application/Client 1001 is deregistering.
+2025-12-26 15:43:12.743433 [info] lusei::receive_cbk closing connection due to is_stopped 0, error 'End of file', is_error 0, endpoint > 0xffffb4005a30
+2025-12-26 15:43:12.743451 [info] rmb::stop_offer_service unsetting payload for [1234.5678.421
+2025-12-26 15:43:12.743458 [info] emb::remove_local: self 0100, client 1001
+2025-12-26 15:43:12.743461 [warning] cei::shutdown_and_close_socket_unlocked: socket was not open, remote: /tmp/vsomeip-1001, endpoint > 0xffff9c000ed0 socket state > CLOSED
+2025-12-26 15:43:12.743463 [info] cei::shutdown_and_close_socket_unlocked: not recreating socket, remote: /tmp/vsomeip-1001, endpoint > 0xffff9c000ed0 socket state > CLOSED
+2025-12-26 15:43:12.743466 [info] Client [100] is closing connection to [1001] endpoint > 0xffff9c000ed0
