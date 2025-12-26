@@ -22,8 +22,7 @@ namespace abacos
               publisher_(participant_),
               writer_qos_(
                   publisher_.default_datawriter_qos()
-                      << dds::core::policy::Reliability::Reliable()
-                      << dds::core::policy::History::KeepLast(1)),
+                      << dds::core::policy::Reliability::BestEffort()),
               writer_(publisher_, dds_topic_, writer_qos_)
         {}
 

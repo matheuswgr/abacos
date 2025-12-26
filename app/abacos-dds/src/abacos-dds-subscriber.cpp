@@ -54,6 +54,25 @@ namespace abacos
             const long abacos_overhead =
                 abacos_latency - dds_latency;
 
+            std::cout << " dds latency [us]: "
+                << dds_latency/1000 << std::endl;
+
+             std::cout   << " - abacos latency [us]: "
+                << abacos_latency/1000  << "\n"
+                << " - abacos overhead [us]: "
+                << abacos_overhead /1000 << "\n"
+                << " - abacos relative overhead [%]: "
+                << 100.0 * static_cast<double>(abacos_overhead) /
+                       static_cast<double>(dds_latency)
+                << "\n" << std::endl;*/
+
+            /*const long abacos_latency =
+                message.abacos_subscriber_time_stamp_ns() -
+                message.abacos_publisher_time_stamp_ns();
+
+            const long abacos_overhead =
+                abacos_latency - dds_latency;
+
             const long abacos_publisher_overhead =
                 message.dds_publisher_time_stamp_ns() -
                 message.abacos_publisher_time_stamp_ns();

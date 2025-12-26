@@ -4,7 +4,7 @@ set -euo pipefail
 
 # ========= Experiment Parameters =========
 PERIOD_MS=100
-DURATION_SECONDS=600     # 10 minutes
+DURATION_SECONDS=300     # 5 minutes
 PAYLOAD_SIZES=(64 256 1024 4096 16384 65536)
 
 VSOMEIP_PUB=/app/abacos/app/abacos-vsomeip/bin/abacos-vsomeip-publisher.o
@@ -31,14 +31,14 @@ run_pair () {
     local prefix="${LOGDIR}/${name}_${payload}B"
 
     # Start subscriber first
-    "${sub}" "${payload}" > "${prefix}_sub.log" 2>&1 &
+    taskset -c 2 "${sub}" "${payload}" > "${prefix}_sub.log" 2>&1 &
     SUB_PID=$!
 
     sleep 1   # ensure subscriber is ready
 
     # Run publisher with timeout
     timeout "${DURATION_SECONDS}" \
-        "${pub}" "${PERIOD_MS}" "${payload}" > "${prefix}_pub.log" 2>&1 || true
+        taskset -c 1 "${pub}" "${PERIOD_MS}" "${payload}" > "${prefix}_pub.log" 2>&1 || true
 
     # Stop subscriber after publisher stops
     kill "${SUB_PID}" >/dev/null 2>&1 || true
@@ -51,9 +51,9 @@ run_pair () {
 # ========= Experiment Loop =========
 for payload in "${PAYLOAD_SIZES[@]}"; do
 
-    run_pair "VSOMEIP" "$VSOMEIP_PUB" "$VSOMEIP_SUB" "$payload"
+    run_pair  "VSOMEIP" "$VSOMEIP_PUB" "$VSOMEIP_SUB" "$payload"
 
-    #run_pair "DDS" "$DDS_PUB" "$DDS_SUB" "$payload"
+    run_pair "DDS" "$DDS_PUB" "$DDS_SUB" "$payload"
 
 done
 

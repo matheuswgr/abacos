@@ -32,7 +32,7 @@ namespace abacos
             not_empty_.wait(lock, [&]
                             { return !queue_.empty(); });
 
-            T item = std::move(queue_.front());
+            T item = queue_.front();
             queue_.pop();
             lock.unlock();
             not_full_.notify_one();

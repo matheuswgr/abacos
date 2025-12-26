@@ -103,8 +103,8 @@ namespace abacos
 
                 output_file_ << "payload_size" << ","
                                << "abacos_publisher_time_stamp_ns" << ","
-                               << "dds_publisher_time_stamp_ns" << ","
-                               << "dds_subscriber_time_stamp_ns" << ","
+                               << "vsomeip_publisher_time_stamp_ns" << ","
+                               << "vsomeip_subscriber_time_stamp_ns" << ","
                                << "abacos_subscriber_time_stamp_ns" << "\n";
             }
 

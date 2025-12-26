@@ -13,7 +13,8 @@
 
 namespace abacos
 {
-    template<typename T>
+
+    template <typename T>
     class DDS_Input_Port
     {
     public:
@@ -26,74 +27,82 @@ namespace abacos
               subscriber_(participant_),
               reader_qos_(
                   subscriber_.default_datareader_qos()
-                      << dds::core::policy::Reliability::Reliable()
-                      << dds::core::policy::History::KeepLast(1)),
-              reader_(subscriber_, dds_topic_, reader_qos_),
-              runner_(&DDS_Input_Port::run, this)
-        {}
+                  << dds::core::policy::Reliability::BestEffort()),
+              reader_(subscriber_, dds_topic_, reader_qos_)
+        {
+            listener_ = std::make_unique<Reader_Listener>(this);
 
-        void listen(Delegate<void(const Port_Event&)> listener)
+        reader_.listener(
+            listener_.get(),
+            dds::core::status::StatusMask::data_available());
+        }
+
+        void listen(Delegate<void(const Port_Event &)> listener)
         {
             listeners_.push_back(listener);
         }
 
-        void bind(Delegate<void(const T&)> consumer)
+        void bind(Delegate<void(const T &)> consumer)
         {
             consumers_.push_back(consumer);
         }
 
-        int port_identifier() const
-        {
-            return port_identifier_;
-        }
+        int port_identifier() const { return port_identifier_; }
 
     private:
+        class Reader_Listener : public dds::sub::NoOpDataReaderListener<T>
+        {
+
+        public:
+            explicit Reader_Listener(DDS_Input_Port *owner)
+                : owner_(owner) {}
+
+            void on_data_available(
+                dds::sub::DataReader<T> &reader) override
+            {
+                auto samples = reader.take();
+
+                for (auto &sample : samples)
+                {
+                    if (!sample.info().valid())
+                        continue;
+
+                    const T &msg = sample.data();
+
+                    const_cast<T &>(msg)
+                        .dds_subscriber_time_stamp_ns(
+                            std::chrono::duration_cast<std::chrono::nanoseconds>(
+                                std::chrono::steady_clock::now()
+                                    .time_since_epoch())
+                                .count());
+
+                    for (auto &c : owner_->consumers_)
+                        c(msg);
+
+                    for (auto &l : owner_->listeners_)
+                        l(owner_->event_);
+                }
+            }
+
+        private:
+            DDS_Input_Port *owner_;
+        };
+
         int port_identifier_;
         std::string topic_;
 
         Port_Event event_;
 
-        std::vector<Delegate<void(const Port_Event&)>> listeners_;
-        std::vector<Delegate<void(const T&)>> consumers_;
+        std::vector<Delegate<void(const Port_Event &)>> listeners_;
+        std::vector<Delegate<void(const T &)>> consumers_;
 
         dds::domain::DomainParticipant participant_;
         dds::topic::Topic<T> dds_topic_;
         dds::sub::Subscriber subscriber_;
         dds::sub::qos::DataReaderQos reader_qos_;
         dds::sub::DataReader<T> reader_;
-
-        std::thread runner_;
-
-        void run()
-        {
-            while (true)
-            {
-                reader_.wait_for_historical_data(
-                    dds::core::Duration(1, 0));
-
-                auto samples = reader_.take();
-
-                for (auto& sample : samples)
-                {
-                    if (!sample.info().valid())
-                        continue;
-
-                    const T& msg = sample.data();
-
-                    const_cast<T &>(msg).dds_subscriber_time_stamp_ns(std::chrono::duration_cast<std::chrono::nanoseconds>(
-                            std::chrono::steady_clock::now().time_since_epoch())
-                            .count());
-
-                    for (auto& consumer : consumers_)
-                        consumer(msg);
-
-                    for (auto& listener : listeners_)
-                        listener(event_);
-                }
-            }
-        }
+        std::unique_ptr<Reader_Listener> listener_;
     };
 }
-
 
 #endif
